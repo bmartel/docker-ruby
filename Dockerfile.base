@@ -35,8 +35,8 @@ RUN set -ex \
 		linux-headers \
 		make \
 		ncurses-dev \
-		openssl \
-		openssl-dev \
+		libressl \
+		libressl-dev \
 		procps \
 		readline-dev \
 		ruby \
@@ -85,7 +85,7 @@ RUN set -ex \
 		bzip2 \
 		ca-certificates \
 		libffi-dev \
-		openssl-dev \
+		libressl-dev \
 		yaml-dev \
 		procps \
 		zlib-dev \
@@ -95,7 +95,7 @@ RUN set -ex \
 	\
 	&& gem update --system "$RUBYGEMS_VERSION"
 
-ENV BUNDLER_VERSION 1.15.1
+ENV BUNDLER_VERSION 1.15.0
 
 RUN gem install bundler --version "$BUNDLER_VERSION"
 
@@ -110,4 +110,4 @@ ENV PATH $BUNDLE_BIN:$PATH
 RUN mkdir -p "$GEM_HOME" "$BUNDLE_BIN" \
 	&& chmod 777 "$GEM_HOME" "$BUNDLE_BIN"
 
-CMD [ "irb" ]
+CMD ["irb"]

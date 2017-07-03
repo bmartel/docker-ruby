@@ -4,25 +4,9 @@ MAINTAINER Brandon Martel <brandonmartel@gmail.com>
 ENV PATH=$HOME/.yarn/bin:$PATH
 
 # Base dependencies
-RUN apk --update add --no-cache --virtual \
-  curl \
-  tar \
-  git \
-  mailcap \
-  imagemagick \
-  postgresql-dev \
-  tzdata \
-  nodejs \
-  yarn \
-  fontconfig && \
-
-# Install phantomjs
-  mkdir phantomjs && cd phantomjs && \
-  curl -L https://github.com/Overbryd/docker-phantomjs-alpine/releases/download/2.11/phantomjs-alpine-x86_64.tar.bz2 | tar -xj && \
-  cd ../ && ls -la ./phantomjs/phantomjs && mv -f ./phantomjs/phantomjs /usr/bin/phantomjs && \
+RUN apk add --update --no-cache --virtual build-dependencies build-base git mailcap imagemagick sqlite-dev libxml2-dev libxslt-dev postgresql-dev tzdata nodejs yarn fontconfig curl tar && \
 
 # Clean up dependencies
-  rm -rf ./phantomjs && \
   find / -type f -iname \*.apk-new -delete && \
   rm -rf /var/cache/apk/* && \
   rm -rf /usr/lib/lib/ruby/gems/*/cache/*
