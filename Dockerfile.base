@@ -1,4 +1,4 @@
-FROM ruby:2.5.1-alpine3.7
+FROM ruby:2.6-rc-alpine3.8
 MAINTAINER Brandon Martel <brandonmartel@gmail.com>
 
 ENV PATH=$HOME/.yarn/bin:$PATH

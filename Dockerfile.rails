@@ -1,4 +1,4 @@
-FROM bmartel/ruby:2.5-base
+FROM bmartel/ruby:2.6-rc-base
 MAINTAINER Brandon Martel <brandonmartel@gmail.com>
 RUN mkdir -p $APP_PATH
 WORKDIR $APP_PATH
