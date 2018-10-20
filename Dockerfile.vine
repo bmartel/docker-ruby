@@ -1,0 +1,17 @@
+FROM alpine:3.8
+MAINTAINER Brandon Martel <brandonmartel@gmail.com>
+
+WORKDIR /
+COPY scripts/postgres-build.sh scripts/ruby-build.sh scripts/vine-entrypoint.sh /usr/local/bin/
+RUN ln -s usr/local/bin/vine-entrypoint.sh && ln -s usr/local/bin/postgres-build.sh / && ln -s usr/local/bin/ruby-build.sh / && postgres-build.sh && ruby-build.sh
+
+# Base dependencies
+RUN apk add --update --no-cache --virtual build-dependencies build-base git mailcap imagemagick sqlite-dev libxml2-dev libxslt-dev postgresql-dev tzdata nodejs yarn fontconfig curl tar && \
+# Clean up dependencies
+  find / -type f -iname \*.apk-new -delete && \
+  rm -rf /var/cache/apk/* && \
+  rm -rf /usr/lib/lib/ruby/gems/*/cache/*
+
+VOLUME ["/usr/src/app"]
+ENTRYPOINT ["vine-entrypoint.sh"]
+CMD ["rails"]
