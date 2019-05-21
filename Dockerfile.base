@@ -1,13 +1,52 @@
 FROM ruby:2.6-alpine3.8
 MAINTAINER Brandon Martel <brandonmartel@gmail.com>
 
-ENV PATH=$HOME/.yarn/bin:$PATH
-
-# Base dependencies
-RUN apk add --update --no-cache --virtual build-dependencies build-base git mailcap imagemagick sqlite-dev libxml2-dev libxslt-dev postgresql-dev tzdata nodejs yarn fontconfig curl tar && \
-# Clean up dependencies
-  find / -type f -iname \*.apk-new -delete && \
-  rm -rf /var/cache/apk/* && \
-  rm -rf /usr/lib/lib/ruby/gems/*/cache/*
-
 ENV APP_PATH /usr/src/app
+ENV PATH=$HOME/.yarn/bin:$PATH
+ENV NOKOGIRI_USE_SYSTEM_LIBRARIES=1
+
+ARG LIBVIPS_VERSION_MAJOR_MINOR=8.7
+ARG LIBVIPS_VERSION_PATCH=4
+ARG MOZJPEG_VERSION="v3.2"
+
+# Install dependencies
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.8/community" >> /etc/apk/repositories && \
+    apk update && \
+    apk upgrade && \
+    apk add --update \
+    zlib libxml2 libxslt glib libexif lcms2 fftw ca-certificates \
+    giflib libpng libwebp orc tiff poppler-glib librsvg && \
+    apk add --no-cache --virtual build-dependencies autoconf automake build-base \
+    git libtool nasm zlib-dev libxml2-dev libxslt-dev glib-dev git mailcap imagemagick \
+    libexif-dev lcms2-dev fftw-dev giflib-dev libpng-dev libwebp-dev orc-dev tiff-dev \
+    poppler-dev librsvg-dev sqlite-dev postgresql-dev tzdata nodejs yarn curl tar && \
+
+# Install mozjpeg
+    cd /tmp && \
+    git clone git://github.com/mozilla/mozjpeg.git && \
+    cd /tmp/mozjpeg && \
+    git checkout ${MOZJPEG_VERSION} && \
+    autoreconf -fiv && ./configure --prefix=/usr && make install && \
+
+# Install libvips
+    wget -O- https://github.com/libvips/libvips/releases/download/v${LIBVIPS_VERSION_MAJOR_MINOR}.${LIBVIPS_VERSION_PATCH}/vips-${LIBVIPS_VERSION_MAJOR_MINOR}.${LIBVIPS_VERSION_PATCH}.tar.gz | tar xzC /tmp && \
+    cd /tmp/vips-${LIBVIPS_VERSION_MAJOR_MINOR}.${LIBVIPS_VERSION_PATCH} && \
+    ./configure --prefix=/usr \
+                --without-python \
+                --without-gsf \
+                --enable-debug=no \
+                --disable-dependency-tracking \
+                --disable-static \
+                --enable-silent-rules && \
+    make -s install-strip && \
+    cd $OLDPWD && \
+
+# Cleanup
+
+    bundle config build.nokogiri --use-system-libraries && \
+    rm -rf /tmp/vips-${LIBVIPS_VERSION_MAJOR_MINOR}.${LIBVIPS_VERSION_PATCH} && \
+    rm -rf /tmp/mozjpeg && \
+    find / -type f -iname \*.apk-new -delete && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf /usr/lib/lib/ruby/gems/*/cache/*
+
